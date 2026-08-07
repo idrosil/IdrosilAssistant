@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import './App.css'
-
+import MaterialsPage from './pages/MaterialsPage'
+import ScanPage from './pages/ScanPage'
 const stats = [
   { value: '305', label: 'Materiali', icon: '📦' },
   { value: '0', label: 'Clienti', icon: '👥' },
@@ -12,36 +14,44 @@ const menuItems = [
     icon: '📷',
     title: 'Scansiona bolla',
     text: 'Importa foto o PDF e aggiorna automaticamente i prezzi',
+    page: 'scan',
     featured: true,
   },
   {
     icon: '🔎',
     title: 'Catalogo materiali',
     text: 'Cerca articoli, codici, fornitori e storico prezzi',
+    page: 'materials',
   },
   {
     icon: '👥',
     title: 'Clienti',
     text: 'Gestisci contatti, indirizzi e lavori eseguiti',
+    page: 'clients',
   },
   {
     icon: '📄',
     title: 'Preventivi',
     text: 'Prepara e archivia preventivi professionali',
+    page: 'quotes',
   },
   {
     icon: '🔧',
     title: 'Interventi',
     text: 'Registra lavori e materiali utilizzati',
+    page: 'jobs',
   },
   {
     icon: '📅',
     title: 'Agenda',
     text: 'Organizza appuntamenti, scadenze e sopralluoghi',
+    page: 'agenda',
   },
 ]
 
 function App() {
+  const [currentPage, setCurrentPage] = useState('home')
+
   const today = new Intl.DateTimeFormat('it-IT', {
     weekday: 'long',
     day: 'numeric',
@@ -49,6 +59,12 @@ function App() {
     year: 'numeric',
   }).format(new Date())
 
+  if (currentPage === 'materials') {
+    return <MaterialsPage onBack={() => setCurrentPage('home')} />
+  }
+if (currentPage === 'scan') {
+  return <ScanPage onBack={() => setCurrentPage('home')} />
+}
   return (
     <main className="app">
       <header className="topbar">
@@ -122,10 +138,6 @@ function App() {
           <p className="eyebrow">STRUMENTI</p>
           <h3>Cosa vuoi fare?</h3>
         </div>
-
-        <button className="text-button" type="button">
-          Mostra tutto
-        </button>
       </section>
 
       <section className="menu-grid">
@@ -134,6 +146,7 @@ function App() {
             className={`menu-card ${item.featured ? 'featured' : ''}`}
             key={item.title}
             type="button"
+            onClick={() => setCurrentPage(item.page)}
           >
             <span className="menu-icon">{item.icon}</span>
 
