@@ -531,3 +531,20 @@ footer strong {
     display: none;
   }
 }
+
+.scan-source-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+
+.scan-source-buttons label {
+  display: inline-block;
+  padding: 12px 18px;
+  border: 1px solid #888;
+  border-radius: 8px;
+  cursor: pointer;
+  background: white;
+}

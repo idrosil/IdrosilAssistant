@@ -2,7 +2,11 @@ import { useMemo, useState } from 'react'
 import * as XLSX from 'xlsx'
 
 function MaterialsPage({ onBack }) {
-  const [materials, setMaterials] = useState([])
+ const [materials, setMaterials] = useState(() => {
+  const saved = localStorage.getItem('idrosilMaterials')
+  return saved ? JSON.parse(saved) : []
+})
+
   const [query, setQuery] = useState('')
   const [error, setError] = useState('')
 
@@ -44,6 +48,7 @@ function MaterialsPage({ onBack }) {
         }))
 
       setMaterials(parsed)
+      localStorage.setItem('idrosilMaterials', JSON.stringify(parsed))
     } catch (err) {
       console.error(err)
       setError('Non sono riuscito a leggere il file Excel.')

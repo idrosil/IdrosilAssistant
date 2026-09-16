@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import MaterialsPage from './pages/MaterialsPage'
 import ScanPage from './pages/ScanPage'
+import CashPage from './pages/CashPage'
 const stats = [
   { value: '305', label: 'Materiali', icon: '📦' },
   { value: '0', label: 'Clienti', icon: '👥' },
@@ -24,6 +25,12 @@ const menuItems = [
     page: 'materials',
   },
   {
+  icon: '💰',
+  title: 'Entrate e Uscite',
+  text: 'Incassi, spese, pagamenti e situazione economica',
+  page: 'cash',
+},
+{
     icon: '👥',
     title: 'Clienti',
     text: 'Gestisci contatti, indirizzi e lavori eseguiti',
@@ -50,7 +57,13 @@ const menuItems = [
 ]
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('home')
+  const [currentPage, setCurrentPage] = useState(
+  () => sessionStorage.getItem('idrosilCurrentPage') || 'home'
+)
+
+useEffect(() => {
+  sessionStorage.setItem('idrosilCurrentPage', currentPage)
+}, [currentPage])
 
   const today = new Intl.DateTimeFormat('it-IT', {
     weekday: 'long',
@@ -64,6 +77,9 @@ function App() {
   }
 if (currentPage === 'scan') {
   return <ScanPage onBack={() => setCurrentPage('home')} />
+}
+if (currentPage === 'cash') {
+  return <CashPage onBack={() => setCurrentPage('home')} />
 }
   return (
     <main className="app">
