@@ -105,10 +105,6 @@ for (let i = 0; i < lines.length; i++) {
   if (/^[A-Z0-9]{5,}/.test(line) && /\d/.test(line)) {
     let fullLine = line
 
-    if (i + 1 < lines.length && !/^[A-Z0-9]{5,}/.test(lines[i + 1])) {
-      fullLine += ' ' + lines[i + 1]
-    }
-
     const cleanLine = fullLine
   .replace(/,\s+/g, ',')
   .replace(/\s+/g, ' ')
@@ -124,23 +120,28 @@ const code = codeMatch?.[0] || ''
 const umMatch = cleanLine.match(/\b(NR|MT|M|PZ|KG|LT|CF)\b/i)
 const um = umMatch?.[0]?.toUpperCase() || ''
 
-const quantity = numbers.length >= 4 ? numbers[numbers.length - 4] : ''
-const listPrice = numbers.length >= 3 ? numbers[numbers.length - 3] : ''
-const discount = numbers.length >= 2 ? numbers[numbers.length - 2] : ''
-const total = numbers.length >= 1 ? numbers[numbers.length - 1] : ''
+const rowMatch = cleanLine.match(
+  /^(\S+)\s+(.+?)\s+(NR|MT|M|PZ|KG|LT|CF)\s+(\d+[.,]\d+)\s+(\d+[.,]\d+)\s+(\d+[.,]\d+)\s+(\d+[.,]\d+)/
+)
 
-const qtyNumber = Number(String(quantity).replace(',', '.'))
-const totalNumber = Number(String(total).replace(',', '.'))
+if (!rowMatch) {
+  continue
+}
+
+const quantity = rowMatch[4]
+const listPrice = rowMatch[5]
+const discount = rowMatch[6]
+const total = rowMatch[7]
+
+const qtyNumber = Number(quantity.replace(',', '.'))
+const totalNumber = Number(total.replace(',', '.'))
 
 const netUnitPrice =
-  qtyNumber > 0 && !Number.isNaN(totalNumber)
+  qtyNumber > 0
     ? (totalNumber / qtyNumber).toFixed(2).replace('.', ',')
     : ''
 
-const description = cleanLine
-  .replace(code, '')
-  .replace(/\b(NR|MT|M|PZ|KG|LT|CF)\b/i, '')
-  .trim()
+const description = rowMatch[2].trim()
 
 const matchedMaterial = materials.find(
   (material) =>
