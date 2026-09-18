@@ -30,7 +30,6 @@ const selectedSupplier =
   setFile(selectedFile)
   const imageUrl = URL.createObjectURL(selectedFile)
 setPreview(imageUrl)
-alert('Foto ricevuta correttamente')
   setRotation(0)
   setText('')
   setError('')
@@ -115,28 +114,53 @@ for (let i = 0; i < lines.length; i++) {
   .replace(/\s+/g, ' ')
   .trim()
 
-const match = cleanLine.match(
-  /^(\S+)\s+(.+?)\s+([A-Z]{1,4})\s+(\d+[.,]\d+)\s+(\d+[.,]\d+)\s+(\d+[.,]\d+)\s+(\d{1,2})$/
-)
+const numberPattern = /\d+[.,]\d+|\d+/
 
-const code = match?.[1] || ''
+const numbers = cleanLine.match(new RegExp(numberPattern, 'g')) || []
+
+const codeMatch = cleanLine.match(/^[A-Z0-9]{5,}/)
+const code = codeMatch?.[0] || ''
+
+const umMatch = cleanLine.match(/\b(NR|MT|M|PZ|KG|LT|CF)\b/i)
+const um = umMatch?.[0]?.toUpperCase() || ''
+
+const quantity = numbers.length >= 4 ? numbers[numbers.length - 4] : ''
+const listPrice = numbers.length >= 3 ? numbers[numbers.length - 3] : ''
+const discount = numbers.length >= 2 ? numbers[numbers.length - 2] : ''
+const total = numbers.length >= 1 ? numbers[numbers.length - 1] : ''
+
+const qtyNumber = Number(String(quantity).replace(',', '.'))
+const totalNumber = Number(String(total).replace(',', '.'))
+
+const netUnitPrice =
+  qtyNumber > 0 && !Number.isNaN(totalNumber)
+    ? (totalNumber / qtyNumber).toFixed(2).replace('.', ',')
+    : ''
+
+const description = cleanLine
+  .replace(code, '')
+  .replace(/\b(NR|MT|M|PZ|KG|LT|CF)\b/i, '')
+  .trim()
 
 const matchedMaterial = materials.find(
   (material) =>
     String(material.lastCode || '').trim().toUpperCase() ===
     code.trim().toUpperCase()
 )
+
 parsed.push({
   id: parsed.length + 1,
   raw: cleanLine,
-  code: match?.[1] || '',
+  code,
   matchedMaterial: matchedMaterial || null,
-  description: match?.[2] || '',
-  um: match?.[3] || '',
-  quantity: match?.[4] || '',
-  price: match?.[5] || '',
-  total: match?.[6] || '',
-  iva: match?.[7] || '',
+  description,
+  um,
+  quantity,
+  price: netUnitPrice,
+  listPrice,
+  discount,
+  total,
+  iva: '',
 })
   }
 }
